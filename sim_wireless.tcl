@@ -7,6 +7,9 @@
 # Simulator Instance Creation
 set ns [new Simulator]
 
+$ns color 1 Blue
+$ns color 2 Red
+
 #Fixing the co-ordinate of simulation area
 set val(x) 600
 set val(y) 600
@@ -137,3 +140,32 @@ set node_($i) [$ns node]
 $node_($i) color black
 
 }
+
+set nf [open out.nam w]
+$ns namtrace-all $nf
+
+proc finish {} {
+	global ns nf
+	$ns flush-trace
+	
+	close $nf
+
+	exec nam out.nam &
+	exit 0
+}
+
+set tcp [new Agent/TCP]
+$tcp set class_ 2
+$ns attach-agent $n1 $tcp
+
+set sink [new Agent/TCPSink]
+$ns attach-agent $n2 $sink
+$ns connect $tcp $sink
+$tcp set fid_ 1
+
+$ns at 0.1 "$tcp start"
+$ns at 4.5 "$tcp stop"
+
+$ns at 5.0 "finish"
+
+$ns run
